@@ -2,5 +2,7 @@
   "name": "CustomsFlow SAP-Style CRM & Customs Process Management",
   "description": "Enterprise-grade Customs Process Management and BPO/HQ Case Tracking System with PostgreSQL/Supabase architecture, role-based access control, and audit compliance.",
   "requestFramePermissions": [],
-  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+  "majorCapabilities": [
+    "MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"
+  ]
 }
