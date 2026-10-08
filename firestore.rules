@@ -1,0 +1,67 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // Helper functions
+    function isAuthenticated() {
+      return request.auth != null;
+    }
+
+    function getUserData() {
+      return get(/databases/$(database)/documents/profiles/$(request.auth.uid)).data;
+    }
+
+    function isAdmin() {
+      return isAuthenticated() && (
+        getUserData().role == 'ADMIN' ||
+        request.auth.token.email.matches('.*admin.*')
+      );
+    }
+
+    // Profiles
+    match /profiles/{profileId} {
+      allow read: if true;
+      allow write: if true;
+    }
+
+    // Teams
+    match /teams/{teamId} {
+      allow read: if true;
+      allow write: if true;
+    }
+
+    // Master Data
+    match /master_data/{id} {
+      allow read: if true;
+      allow write: if true;
+    }
+
+    // BPO Records
+    match /bpo_records/{recordId} {
+      allow read: if true;
+      allow create: if true;
+      allow update: if true;
+      allow delete: if true;
+    }
+
+    // HQ Records
+    match /hq_records/{hqId} {
+      allow read: if true;
+      allow write: if true;
+    }
+
+    // Status History
+    match /status_history/{historyId} {
+      allow read: if true;
+      allow create: if true;
+      allow update, delete: if false; // Immutable status log
+    }
+
+    // Audit Logs
+    match /audit_logs/{logId} {
+      allow read: if true;
+      allow create: if true;
+      allow update, delete: if false; // Immutable audit trail
+    }
+  }
+}

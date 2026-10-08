@@ -138,20 +138,14 @@ export const Header: React.FC<HeaderProps> = ({ activeTab, onTabChange, onOpenSu
 
           {/* Zone 3: Primary Actions & User Identity */}
           <div className="flex items-center space-x-2.5">
-            {/* Database / Supabase indicator */}
+            {/* Database & Cloud Settings */}
             <button
               onClick={onOpenSupabaseModal}
-              className={`inline-flex items-center gap-1.5 px-2.5 py-1 text-xs font-medium rounded-md border transition-all ${
-                supabaseConnected
-                  ? 'bg-emerald-50 text-emerald-800 border-emerald-200 hover:bg-emerald-100'
-                  : 'bg-slate-50 text-slate-700 border-slate-200 hover:bg-slate-100'
-              }`}
-              title="Database & Supabase Connection Status"
+              className="inline-flex items-center gap-1.5 px-2.5 py-1 text-xs font-medium rounded-md border border-slate-200 bg-slate-50 text-slate-700 hover:bg-slate-100 transition-all"
+              title="Database & Cloud Settings"
             >
               <Database className="w-3.5 h-3.5 text-blue-600" />
-              <span className="hidden sm:inline">
-                {supabaseConnected ? 'Supabase Live' : 'PostgreSQL Engine'}
-              </span>
+              <span className="hidden sm:inline">Database &amp; Cloud</span>
             </button>
 
             {/* User Profile & Role Switcher */}

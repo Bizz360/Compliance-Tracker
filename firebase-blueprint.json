@@ -1,0 +1,174 @@
+{
+  "entities": {
+    "UserProfile": {
+      "title": "UserProfile",
+      "description": "User profile with role-based access control for Customs CRM",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "auth_user_id": { "type": "string" },
+        "username": { "type": "string" },
+        "email": { "type": "string", "format": "email" },
+        "full_name": { "type": "string" },
+        "role": { "type": "string", "enum": ["TEAM", "PCO", "HQ", "ADMIN"] },
+        "team_id": { "type": "string" },
+        "team_name": { "type": "string" },
+        "status": { "type": "string", "enum": ["ACTIVE", "INACTIVE"] },
+        "created_at": { "type": "string" },
+        "updated_at": { "type": "string" },
+        "last_login": { "type": "string" }
+      },
+      "required": ["username", "email", "full_name", "role", "status"]
+    },
+    "Team": {
+      "title": "Team",
+      "description": "Operational customs and freight team",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "team_name": { "type": "string" },
+        "description": { "type": "string" },
+        "status": { "type": "string", "enum": ["ACTIVE", "INACTIVE"] },
+        "created_at": { "type": "string" },
+        "updated_at": { "type": "string" }
+      },
+      "required": ["team_name", "status"]
+    },
+    "MasterData": {
+      "title": "MasterData",
+      "description": "Enterprise classification dictionary item",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "category": { "type": "string", "enum": ["TEAM_NAME", "DIVISION", "ISSUE_CATEGORY", "ERROR_CATEGORY", "OWNERSHIP", "STATUS"] },
+        "value": { "type": "string" },
+        "display_order": { "type": "number" },
+        "active": { "type": "boolean" },
+        "created_at": { "type": "string" },
+        "updated_at": { "type": "string" }
+      },
+      "required": ["category", "value", "active"]
+    },
+    "BpoRecord": {
+      "title": "BpoRecord",
+      "description": "Customs BPO declaration case record",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "reference": { "type": "string" },
+        "issue_date": { "type": "string" },
+        "team_id": { "type": "string" },
+        "team_name": { "type": "string" },
+        "customer": { "type": "string" },
+        "division": { "type": "string" },
+        "issue_category": { "type": "string" },
+        "permit_no": { "type": "string" },
+        "importer_exporter_name": { "type": "string" },
+        "mabl_obl_job_ref": { "type": "string" },
+        "error_category": { "type": "string" },
+        "description_of_error": { "type": "string" },
+        "root_cause": { "type": "string" },
+        "preventive_action": { "type": "string" },
+        "vdp_nod_refund_customs_reference": { "type": "string" },
+        "ownership": { "type": "string" },
+        "lsp_cs_name": { "type": "string" },
+        "status": { "type": "string" },
+        "is_deleted": { "type": "boolean" },
+        "created_by": { "type": "string" },
+        "created_by_name": { "type": "string" },
+        "created_at": { "type": "string" },
+        "updated_by": { "type": "string" },
+        "updated_at": { "type": "string" }
+      },
+      "required": ["reference", "issue_date", "team_id", "customer", "permit_no", "description_of_error", "status"]
+    },
+    "HqRecord": {
+      "title": "HqRecord",
+      "description": "HQ process docket and regulatory approval record",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "bpo_id": { "type": "string" },
+        "reference": { "type": "string" },
+        "submitted_date": { "type": "string" },
+        "permit_no": { "type": "string" },
+        "vdp_nod_refund_customs_reference": { "type": "string" },
+        "ownership": { "type": "string" },
+        "approval_date": { "type": "string" },
+        "status": { "type": "string" },
+        "remarks": { "type": "string" },
+        "created_by": { "type": "string" },
+        "created_at": { "type": "string" },
+        "updated_by": { "type": "string" },
+        "updated_at": { "type": "string" }
+      },
+      "required": ["reference", "bpo_id", "status"]
+    },
+    "StatusHistory": {
+      "title": "StatusHistory",
+      "description": "Audit of case lifecycle transitions",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "reference": { "type": "string" },
+        "bpo_id": { "type": "string" },
+        "old_status": { "type": "string" },
+        "new_status": { "type": "string" },
+        "changed_by": { "type": "string" },
+        "changed_by_name": { "type": "string" },
+        "changed_at": { "type": "string" },
+        "remarks": { "type": "string" }
+      },
+      "required": ["reference", "new_status", "changed_at"]
+    },
+    "AuditLog": {
+      "title": "AuditLog",
+      "description": "Immutable security and regulatory audit log entry",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "user_id": { "type": "string" },
+        "user_name": { "type": "string" },
+        "action": { "type": "string" },
+        "entity_type": { "type": "string" },
+        "entity_id": { "type": "string" },
+        "reference": { "type": "string" },
+        "old_data": { "type": "object" },
+        "new_data": { "type": "object" },
+        "ip_address": { "type": "string" },
+        "created_at": { "type": "string" }
+      },
+      "required": ["user_name", "action", "entity_type", "created_at"]
+    }
+  },
+  "firestore": {
+    "/profiles/{profileId}": {
+      "schema": { "$ref": "UserProfile" },
+      "description": "User profiles and RBAC role assignments"
+    },
+    "/teams/{teamId}": {
+      "schema": { "$ref": "Team" },
+      "description": "Operational teams dictionary"
+    },
+    "/master_data/{id}": {
+      "schema": { "$ref": "MasterData" },
+      "description": "System classification master data"
+    },
+    "/bpo_records/{recordId}": {
+      "schema": { "$ref": "BpoRecord" },
+      "description": "BPO customs case records"
+    },
+    "/hq_records/{hqId}": {
+      "schema": { "$ref": "HqRecord" },
+      "description": "HQ compliance process tracking"
+    },
+    "/status_history/{historyId}": {
+      "schema": { "$ref": "StatusHistory" },
+      "description": "Case status transition log"
+    },
+    "/audit_logs/{logId}": {
+      "schema": { "$ref": "AuditLog" },
+      "description": "Regulatory audit log"
+    }
+  }
+}

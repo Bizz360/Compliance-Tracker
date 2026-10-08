@@ -5,6 +5,12 @@ import { db, subscribeToDatabase } from '../../services/database';
 import { BpoRecord, FilterOptions } from '../../types';
 import { formatDateDisplay, calculateAgingDays } from '../../utils/date';
 import { exportRecordsToExcel, exportRecordsToCsv } from '../../utils/export';
+import {
+  isGoogleSheetsConnected,
+  signInWithGoogleSheets,
+  getGoogleAccessToken,
+  createGoogleSpreadsheetWithRecords,
+} from '../../services/googleSheets';
 import { RecordDetailModal } from './RecordDetailModal';
 import { RecordEditModal } from './RecordEditModal';
 import {
@@ -175,6 +181,33 @@ export const RecordsModule: React.FC<RecordsModuleProps> = ({ initialFilter }) =
     toast.success('CSV Generated', `Exported ${sortedRecords.length} records.`);
   };
 
+  const handleExportGoogleSheet = async () => {
+    if (sortedRecords.length === 0) {
+      toast.warning('Empty Dataset', 'No matching records to export.');
+      return;
+    }
+
+    try {
+      let token = getGoogleAccessToken();
+      if (!token) {
+        const res = await signInWithGoogleSheets();
+        token = res.accessToken;
+      }
+
+      toast.info('Exporting to Google Sheets', 'Generating spreadsheet in Google Drive...');
+      const { spreadsheetUrl } = await createGoogleSpreadsheetWithRecords(
+        `CustomsFlow_Records_${new Date().toISOString().split('T')[0]}`,
+        sortedRecords,
+        token
+      );
+
+      toast.success('Google Sheet Created', 'View your spreadsheet in Google Drive.');
+      window.open(spreadsheetUrl, '_blank');
+    } catch (err: any) {
+      toast.error('Google Sheets Export Error', err.message || 'Failed to export to Google Sheets.');
+    }
+  };
+
   const handleResetFilters = () => {
     setSearchQuery('');
     setSelectedTeam('');
@@ -295,6 +328,15 @@ export const RecordsModule: React.FC<RecordsModuleProps> = ({ initialFilter }) =
             >
               <Download className="w-3.5 h-3.5" />
               <span>CSV</span>
+            </button>
+
+            <button
+              onClick={handleExportGoogleSheet}
+              className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium text-emerald-700 bg-white border border-emerald-300 rounded-md hover:bg-emerald-50 transition-colors"
+              title="Export filtered records to a live Google Sheet"
+            >
+              <FileSpreadsheet className="w-3.5 h-3.5 text-emerald-600" />
+              <span>Google Sheets</span>
             </button>
           </div>
         </div>

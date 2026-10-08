@@ -21,6 +21,8 @@ import {
   INITIAL_TEAMS,
 } from './seedData';
 import { getSupabaseClient } from './supabase';
+import { firestore } from './firebase';
+import { doc, setDoc } from 'firebase/firestore';
 
 // Local storage persistence keys
 const DB_KEY_TEAMS = 'customsflow_db_teams';
@@ -120,6 +122,16 @@ class EnterpriseDatabase {
       localStorage.setItem(DB_KEY_ATTACHMENTS, JSON.stringify(this.attachments));
     } catch (e) {
       console.error('Database persist error:', e);
+    }
+  }
+
+  private async syncToFirestore(collectionName: string, docId: string, data: Record<string, unknown>) {
+    try {
+      if (firestore && docId) {
+        await setDoc(doc(firestore, collectionName, docId), data, { merge: true });
+      }
+    } catch {
+      // Background cloud sync
     }
   }
 
@@ -705,6 +717,8 @@ class EnterpriseDatabase {
     });
 
     this.persist();
+    this.syncToFirestore('bpo_records', newRecord.reference, newRecord as unknown as Record<string, unknown>);
+    this.syncToFirestore('hq_records', hqRecord.reference, hqRecord as unknown as Record<string, unknown>);
     this.logAudit(user, 'CREATE', 'BPO', newRecord.id, newRecord.reference, null, newRecord as unknown as Record<string, unknown>);
     notifyListeners();
     return newRecord;
@@ -753,6 +767,7 @@ class EnterpriseDatabase {
 
     this.bpoRecords[idx] = updatedRecord;
     this.persist();
+    this.syncToFirestore('bpo_records', updatedRecord.reference, updatedRecord as unknown as Record<string, unknown>);
     this.logAudit(user, 'UPDATE', 'BPO', current.id, reference, oldRecord as unknown as Record<string, unknown>, updatedRecord as unknown as Record<string, unknown>);
     notifyListeners();
     return updatedRecord;
